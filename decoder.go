@@ -8,10 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
-var ErrInvalidChannel = errors.New("cayennelpp: unknown type")
+var ErrInvalidChannel = errors.New("unknown cayenne type")
 
+// UplinkMessage a decoded uplink message
 type UplinkMessage struct {
 	values map[string]interface{}
 }
@@ -28,8 +30,21 @@ func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{r}
 }
 
+// Values returns a map where each key is build by:
+// message type + _ + channel id
+// temperature_2, digital_output_5 ...
 func (msg *UplinkMessage) Values() map[string]interface{} {
 	return msg.values
+}
+
+// GotLocation tells if the message has a position in it and returns the first found key
+func (msg *UplinkMessage) GotLocation() (string, bool) {
+	for k := range msg.values {
+		if strings.HasPrefix(k, "gps") {
+			return k, true
+		}
+	}
+	return "", false
 }
 
 func (d *Decoder) DecodeUplink() (*UplinkMessage, error) {

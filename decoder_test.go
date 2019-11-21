@@ -47,6 +47,9 @@ func TestDecode(t *testing.T) {
 		a.So(msg.Values()["barometric_pressure_10"], ShouldEqual, 1073.5)
 		a.So(msg.Values()["gyrometer_11"], ShouldResemble, []float32{3.55, 5.61, -4.10})
 		a.So(msg.Values()["gps_12"], ShouldResemble, []float32{52.3655, 4.8885, 21.54})
+		key, ok := msg.GotLocation()
+		a.So(ok, ShouldBeTrue)
+		a.So(key, ShouldEqual, "gps_12")
 	}
 
 	// Happy flow: downlink
